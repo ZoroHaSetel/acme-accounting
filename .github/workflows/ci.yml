@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12.3
+        ports:
+          - 5590:5432
+        env:
+          POSTGRES_DB: task-dev
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd="pg_isready -U user" --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for DB to be ready
+        run: |
+          for i in {1..10}; do
+            nc -z localhost 5590 && echo "DB is up" && break
+            echo "Waiting for DB..."
+            sleep 5
+          done
+
+      - name: Run DB create (test)
+        run: npm run db:create:test
+        env:
+          NODE_ENV: test
+          POSTGRES_DB: task-dev
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          DB_PORT: 5590
+
+      - name: Run DB migrate (test)
+        run: npm run db:migrate:test
+        env:
+          NODE_ENV: test
+          POSTGRES_DB: task-dev
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          DB_PORT: 5590
+
+      - name: Run tests
+        run: npm test
+        env:
+          NODE_ENV: test
+          POSTGRES_DB: task-dev
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          DB_PORT: 5590
