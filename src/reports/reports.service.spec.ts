@@ -15,4 +15,17 @@ describe('ReportsService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it('should start a report export and return a valid id', () => {
+    const id = service.startReportExport();
+    expect(typeof id).toBe('string');
+    expect(id.length).toBeGreaterThan(0);
+    const state = service.state(id);
+    expect(state).toEqual({ accounts: 'pending', yearly: 'pending', fs: 'pending' });
+  });
+
+  it('should return default state for unknown id', () => {
+    const state = service.state('unknown-id');
+    expect(state).toEqual({ accounts: 'idle', yearly: 'idle', fs: 'idle' });
+  });
 });
