@@ -22,6 +22,15 @@ describe('TicketsController', () => {
     controller = module.get<TicketsController>(TicketsController);
   });
 
+  afterEach(async () => {
+    // Clean up DB after each test to avoid leaks
+    await Promise.all([
+      require('../../db/models/Ticket').Ticket.destroy({ where: {} }),
+      require('../../db/models/User').User.destroy({ where: {} }),
+      require('../../db/models/Company').Company.destroy({ where: {} }),
+    ]);
+  });
+
   it('should be defined', async () => {
     expect(controller).toBeDefined();
 
