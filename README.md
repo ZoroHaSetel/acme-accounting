@@ -187,3 +187,141 @@ npm run db:migrate:test
 ```sh
 npm test
 ```
+
+
+
+<aside>
+🔑
+
+### 1. `accounts()`
+
+**Purpose:**
+
+Calculates the balance for each account across all CSV files in the tmp directory and writes the results to accounts.csv.
+
+**How it works:**
+
+- Reads all `.csv` files in the tmp directory.
+- For each line in each file, extracts the account name, debit, and credit values.
+- Sums up (debit - credit) for each account.
+- Outputs a CSV file with two columns: `Account,Balance`.
+
+**Input:**
+
+All `.csv` files in the tmp directory (each line: `date,account,desc,debit,credit`).
+
+**Output:**
+
+accounts.csv with content like:
+
+Account,Balance
+
+Cash,1234.56
+
+Sales Revenue,789.00
+
+---
+
+### 2. `yearly()`
+
+**Purpose:**
+
+Calculates the yearly cash balance by summing all transactions for the "Cash" account, grouped by year, and writes the results to yearly.csv.
+
+**How it works:**
+
+- Reads all `.csv` files in the tmp directory (except `yearly.csv`).
+- For each line, if the account is "Cash", extracts the year from the date and sums (debit - credit) for that year.
+- Outputs a CSV file with two columns: `Financial Year,Cash Balance`.
+
+**Input:**
+
+All `.csv` files in the tmp directory (each line: `date,account,desc,debit,credit`).
+
+**Output:**
+
+yearly.csv with content like:
+
+Financial Year,Cash Balance
+
+2019,1000.00
+
+2020,1500.00
+
+---
+
+### 3. `fs()`
+
+**Purpose:**
+
+Generates a basic financial statement (Income Statement and Balance Sheet) by aggregating balances for predefined accounts, and writes the results to fs.csv.
+
+**How it works:**
+
+- Defines categories for the Income Statement (Revenues, Expenses) and Balance Sheet (Assets, Liabilities, Equity).
+- Initializes balances for each account in these categories.
+- Reads all `.csv` files in the tmp directory (except `fs.csv`).
+- For each line, if the account is in the predefined categories, sums (debit - credit) for that account.
+- Calculates totals for each section and outputs a formatted CSV with the financial statement.
+
+**Input:**
+
+All `.csv` files in the tmp directory (each line: `date,account,desc,debit,credit`).
+
+**Output:**
+
+fs.csv with a formatted financial statement, e.g.:
+
+</aside>
+
+How to improve :
+
+- READFILE IN parallel
+- **Avoid Repeated File Reads (currenrtly reading all file under tmp 3 times)**
+- Add unique id in to each export state
+- readFileSync is a blocking operation, blocking all other operation. Update to async reading file operation
+
+For future improvement 
+
+- use readfile stream to handle large file, improve memory
+- implement sentry profilling tool
+- Add in exeption to handle different cased
+
+Improve perfomance report :
+
+| Prior | Update |
+| --- | --- |
+| blocking opration | Non blocking read write file operation |
+| Keep API connection | release API connection, save export id for future reference  |
+| Export time take 9s due to waiting all 3 operation to complete. each take about 3s | Export time take 4s first time making request. Subsequence request take 3s |
+
+Prior update
+
+```json
+{
+    "accounts.csv": "finished in 4.21",
+    "yearly.csv": "finished in 2.76",
+    "fs.csv": "finished in 3.24"
+}
+
+```
+
+After update
+
+
+
+```json
+{
+    "accounts": "finished in 0.64",
+    "yearly": "finished in 0.19",
+    "fs": "finished in 0.71"
+}
+```
+
+```json
+{
+    "accounts": "finished in 4.36",
+    "yearly": "finished in 0.20",
+    "fs": "finished in 0.62"
+}
+```
