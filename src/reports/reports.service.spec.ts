@@ -21,7 +21,7 @@ describe('ReportsService', () => {
     expect(typeof id).toBe('string');
     expect(id.length).toBeGreaterThan(0);
     const state = service.state(id);
-    expect(state).toEqual({ accounts: 'pending', yearly: 'pending', fs: 'pending' });
+    expect(state).toEqual({ accounts: 'starting', yearly: 'pending', fs: 'pending' });
   });
 
   it('should return default state for unknown id', () => {
