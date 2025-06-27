@@ -191,7 +191,7 @@ npm test
 
 
 <aside>
-🔑
+🔑 Study note on Homework
 
 ### 1. `accounts()`
 
