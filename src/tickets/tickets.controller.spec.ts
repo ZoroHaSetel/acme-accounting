@@ -9,6 +9,8 @@ import {
 import { User, UserRole } from '../../db/models/User';
 import { DbModule } from '../db.module';
 import { TicketsController } from './tickets.controller';
+import { LoggerService } from '../logger/logger.service';
+
 
 describe('TicketsController', () => {
   let controller: TicketsController;
@@ -16,6 +18,10 @@ describe('TicketsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TicketsController],
+      providers: [
+        require('./tickets.service').TicketsService,
+        { provide: LoggerService, useValue: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } },
+      ],
       imports: [DbModule],
     }).compile();
 
@@ -36,6 +42,12 @@ describe('TicketsController', () => {
 
     const res = await controller.findAll();
     console.log(res);
+  });
+
+  it('should return an empty array if there are no tickets', async () => {
+    const res = await controller.findAll();
+    expect(Array.isArray(res)).toBe(true);
+    expect(res.length).toBe(0);
   });
 
   describe('create', () => {
@@ -186,5 +198,6 @@ describe('TicketsController', () => {
         expect(ticket.status).toBe(TicketStatus.open);
       });
     });
+
   });
 });

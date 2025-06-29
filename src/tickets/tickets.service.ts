@@ -1,4 +1,5 @@
 import { Injectable, ConflictException } from '@nestjs/common';
+import { LoggerService } from '../logger/logger.service';
 import { Company } from '../../db/models/Company';
 import {
   Ticket,
@@ -9,6 +10,7 @@ import {
 import { User, UserRole } from '../../db/models/User';
 import { TicketDuplicateError } from './ticket-error';
 import { NewTicketDto } from './ticket.dto';
+import { DatabaseService } from '../db/database.service';
 
 export interface TicketDto {
   id: number;
@@ -31,7 +33,16 @@ const userRoleTicketTypeMap = {
 
 @Injectable()
 export class TicketsService {
+  constructor(
+    private readonly logger: LoggerService,
+    private readonly db: DatabaseService,
+  ) {}
   async createTicket(newTicketDto: NewTicketDto): Promise<TicketDto> {
+    if (!newTicketDto) {
+      this.logger.warn('No ticket data provided to createTicket');
+      throw new ConflictException('No ticket data provided');
+    }
+    this.logger.info('Creating new ticket', { newTicketDto });
     const { type, companyId } = newTicketDto;
     const category = ticketTypeCategoryMap[type] || TicketCategory.corporate;
     const userRole = userRoleTicketTypeMap[type] || UserRole.corporateSecretary;
@@ -71,6 +82,7 @@ export class TicketsService {
       category: ticket.category,
       companyId: ticket.companyId,
     };
+    this.logger.info('Ticket created', { ticketDto });
     return ticketDto;
   }
 
@@ -95,7 +107,7 @@ export class TicketsService {
     }
     if (currentSecreteryList.length == 0) {
       let director = await User.findAll({
-        where: { role: UserRole.director },
+        where: { role: UserRole.director, companyId: companyId },
       });
       if (director.length == 1) assigne = director[0];
       else
