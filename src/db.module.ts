@@ -5,6 +5,7 @@ import { Company } from '../db/models/Company';
 import { Ticket } from '../db/models/Ticket';
 import { User } from '../db/models/User';
 import dbConfig from '../db/config/config.json';
+import { DatabaseService } from './db/database.service';
 
 const devConfig = dbConfig.development as SequelizeModuleOptions;
 const testConfig = dbConfig.test as SequelizeModuleOptions;
@@ -18,5 +19,7 @@ const config = process.env.NODE_ENV === 'test' ? testConfig : devConfig;
       models: [Company, User, Ticket],
     }),
   ],
+  providers: [DatabaseService],
+  exports: [DatabaseService],
 })
 export class DbModule {}

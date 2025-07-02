@@ -1,25 +1,18 @@
-import { Controller, Get, Post, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, HttpCode, Param } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 
 @Controller('api/v1/reports')
 export class ReportsController {
   constructor(private reportsService: ReportsService) {}
 
-  @Get()
-  report() {
-    return {
-      'accounts.csv': this.reportsService.state('accounts'),
-      'yearly.csv': this.reportsService.state('yearly'),
-      'fs.csv': this.reportsService.state('fs'),
-    };
+  @Get(':id')
+  getStatus(@Param('id') id: string) {
+    return this.reportsService.state(id);
   }
 
   @Post()
   @HttpCode(201)
   generate() {
-    this.reportsService.accounts();
-    this.reportsService.yearly();
-    this.reportsService.fs();
-    return { message: 'finished' };
+    return this.reportsService.startReportExport();
   }
 }

@@ -14,8 +14,8 @@
     "migrate": "sequelize db:migrate",
     "migrate:create": "sequelize db:create",
     "postinstall": "node generate.js",
-    "db:migrate:test": "NODE_ENV=test sequelize db:migrate",
-    "db:create:test": "NODE_ENV=test sequelize db:create",
+    "db:migrate:test": "cross-env NODE_ENV=test sequelize db:migrate",
+    "db:create:test": "cross-env NODE_ENV=test sequelize db:create",
     "db:reset": "sequelize db:migrate:undo:all"
   },
   "dependencies": {
@@ -23,10 +23,18 @@
     "@nestjs/core": "11.0.13",
     "@nestjs/platform-express": "11.0.13",
     "@nestjs/sequelize": "11.0.0",
+    "@types/uuid": "^10.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "csv-parser": "^3.2.0",
+    "nestjs-pino": "^4.4.0",
     "pg": "8.14.1",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0",
     "reflect-metadata": "0.2.2",
     "sequelize": "6.37.7",
-    "sequelize-typescript": "2.1.6"
+    "sequelize-typescript": "2.1.6",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
@@ -41,6 +49,7 @@
     "@types/node": "22.14.0",
     "@types/sequelize": "4.28.20",
     "@types/supertest": "6.0.3",
+    "cross-env": "^7.0.3",
     "eslint": "9.24.0",
     "eslint-config-prettier": "10.1.1",
     "eslint-plugin-prettier": "5.2.6",
